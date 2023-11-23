@@ -128,9 +128,8 @@ class LFSR:
         print(self.num_stages)
 
 
-#lfsr = LFSR(16, [16, 14, 13, 11], fill='ones')
-lfsr = LFSR(8, [8, 6, 5, 4], fill='ones')
-lfsr.run_lfsr(print_output=False)
+# lfsr = LFSR(16, [16, 14, 13, 11], fill='ones')
+# lfsr.run_lfsr(print_output=False)
 
 
 # Q4b - EXTENSION

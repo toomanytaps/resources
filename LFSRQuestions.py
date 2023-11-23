@@ -1,6 +1,5 @@
 import random
 from functools import reduce
-import numpy as np
 
 
 # Q4 Linear Feedback Shift Register
@@ -17,7 +16,7 @@ class LFSR:
         """
         Initialise the LFSR
         :param stages: Int, the number of stages
-        :param taps: A list of the tap point. The number should be the polynomial order and don't include the 0
+        :param taps: A list of the tap points. The number should be the polynomial order and don't include the 0
         (e.g x**4 + x + 1 = [4, 1])
         :param fill: String, how the stages should be filled. Options are 'ones', 'random', or you can enter
         a custom binary string (e.g. '10110') and that will be filled into the stages. If the custom string is too
@@ -25,13 +24,15 @@ class LFSR:
         """
         self.num_stages = num_stages
         self.taps = [i-1 for i in taps_list]
-        self.sequence = []
 
         self.stages = []
         self.fill_stages(fill=fill)
 
-        # The chunk that is used to check for repitition
-        self.fingerprint = None
+        # Start the sequence off with the stage fill
+        self.sequence = self.stages.copy()
+
+        # The fingerprint below is used to look for repetition of the output sequence
+        self.fingerprint = self.sequence.copy()
         self.repeat = False
 
     def fill_stages(self, fill='ones'):
@@ -85,16 +86,15 @@ class LFSR:
         """
         Checks to see if the LSR has repeated
         """
-        if len(self.sequence) < self.num_stages:    # ****IS THIS RIGHT????****
+        # Pass the first time
+        if len(self.sequence) == len(self.fingerprint):
             pass
 
-        elif len(self.sequence) == self.num_stages:
-            self.fingerprint = self.sequence.copy()
-
-        else:
-            check_region = self.sequence[-1*self.num_stages:]
-            if check_region == self.fingerprint:
-                self.repeat = True
+        # Create the check region as the last n bits of the sequence
+        check_region = self.sequence[-1*self.num_stages:]
+        # See if the check region is the fingerprint
+        if check_region == self.fingerprint:
+            self.repeat = True
 
     def run_lfsr(self, print_output=True, cycles=None):
         """
@@ -115,9 +115,11 @@ class LFSR:
                     break
 
             if self.repeat:
+                self.sequence = self.sequence[:-len(self.fingerprint)]
                 s_print = ''.join([str(i) for i in self.sequence])
                 f_print = ''.join([str(i) for i in self.fingerprint])
-                #print(f"Sequence has repeated!\nSequence:{s_print}\nFingerprint:{f_print}")
+                print(f"Sequence has repeated!\nSequence:{s_print}\nFingerprint:{f_print}")
+                print(f"The sequence length for this LFSR is {len(self.sequence)}")
                 break
 
     def print_state(self):
@@ -126,20 +128,24 @@ class LFSR:
         print(self.num_stages)
 
 
-# #lfsr = LFSR(16, [16, 14, 13, 11], fill='ones')
-# lfsr = LFSR(8, [8, 6, 5, 4], fill='ones')
-# lfsr.run_lfsr(print_output=False)
+#lfsr = LFSR(16, [16, 14, 13, 11], fill='ones')
+lfsr = LFSR(8, [8, 6, 5, 4], fill='ones')
+lfsr.run_lfsr(print_output=False)
 
 
 # Q4b - EXTENSION
 # A LSFR with 8 registers was initially seeded with 1's. It produced the following sequence:
 
-# 0000101111000110100000001000111000100101110000001100100100110111001000001010110110101100101100001111101101111010111
-# 0100010000110110001111001110011000101101001000101001010100111011101100111101111110100110011010100011000001110101010
-# 111110010100001001111111100001011
+# 1111111100001011110001101000000010001110001001011100000011001001001101110010000010101101101011001011000011111011011
+# 1101011101000100001101100011110011100110001011010010001010010101001110111011001111011111101001100110101000110000011
+# 1010101011111001010000100
+
 
 # Where were the taps placed?
 
+# Answer
+# lfsr = LFSR(8, [8, 6, 5, 4], fill='ones')
+# lfsr.run_lfsr(print_output=False)
 
 # Q4c - EXTENSION
 # The maximum sequence length is given by (2**n)-1, where n is the number of registers.
